@@ -1,0 +1,1 @@
+(()=>{const h=document.querySelector('.hero');if(!h)return;const open=()=>h.classList.add('hidden');h.querySelector('.touch-target')?.addEventListener('click',open);h.querySelector('.touch-target')?.addEventListener('touchend',open,{passive:true});setTimeout(open,1800000)})();

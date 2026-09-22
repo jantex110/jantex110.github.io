@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://jantex110.github.io/sitemap.xml
