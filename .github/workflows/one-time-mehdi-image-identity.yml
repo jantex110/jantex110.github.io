@@ -25,64 +25,37 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re, json
-
           files=sorted(Path('articles').glob('*/index.html'))
           if len(files)!=50: raise SystemExit(f'Expected 50 articles, found {len(files)}')
-
-          variants=[
-          'مهدی عطار جاننثار نوبری','مهدی عطار جان‌نثار نوبری','مهدی عطار جان نثار نوبری','مهدی عطار جانثار نوبری','مهدی عطار جان‌ثار نوبری',
-          'مهدی عطار جانسار نوبری','مهدی عطار جان‌سار نوبری','مهدی عطار جاننسار نوبری','مهدی عطار جان‌نسار نوبری','مهدی عطار جان نسار نوبری',
-          'مهدی جاننثار نوبری','مهدی جان‌نثار نوبری','مهدی جان نثار نوبری','مهدی جانثار نوبری','مهدی جانسار نوبری',
-          'Mehdi Attar Jannesar Nobari','Mehdi Attar Janesar Nobari','Mehdi Attar Jan-Nesar Nobari','Mehdi Jannesar Nobari','Mehdi Janesar Nobari',
-          'Mahdi Attar Jannesar Nobari','Mahdi Jannesar Nobari','Mehdi Jannesar','Mehdi Janesar','Mehdi Nobari']
-
+          variants=['مهدی عطار جاننثار نوبری','مهدی عطار جان‌نثار نوبری','مهدی عطار جان نثار نوبری','مهدی عطار جانثار نوبری','مهدی عطار جان‌ثار نوبری','مهدی عطار جانسار نوبری','مهدی عطار جان‌سار نوبری','مهدی عطار جاننسار نوبری','مهدی عطار جان‌نسار نوبری','مهدی عطار جان نسار نوبری','مهدی جاننثار نوبری','مهدی جان‌نثار نوبری','مهدی جان نثار نوبری','مهدی جانثار نوبری','مهدی جانسار نوبری','Mehdi Attar Jannesar Nobari','Mehdi Attar Janesar Nobari','Mehdi Attar Jan-Nesar Nobari','Mehdi Jannesar Nobari','Mehdi Janesar Nobari','Mahdi Attar Jannesar Nobari','Mahdi Jannesar Nobari','Mehdi Jannesar','Mehdi Janesar','Mehdi Nobari']
           for i,p in enumerate(files):
               s=p.read_text(encoding='utf-8')
-              old=f'hero-{(i%5)+1:02d}.webp'
-              new=f'mehdi-attar-jannesar-nobari-{(i%5)+1:02d}.webp'
-              # Preserve every other part of the page; only image filename refs and hero ALT.
+              old=f'hero-{(i%5)+1:02d}.webp'; new=f'mehdi-attar-jannesar-nobari-{(i%5)+1:02d}.webp'
               s=s.replace(old,new)
               pat=r'(<section class="hero"[^>]*><img\s+src="[^"]+"\s+alt=")[^"]*("\s+fetchpriority="high")'
               s,n=re.subn(pat,lambda m:m.group(1)+variants[i%len(variants)]+m.group(2),s,count=1)
               if n!=1: raise SystemExit(f'Hero ALT not uniquely updated: {p}')
               p.write_text(s,encoding='utf-8')
-
-          about=Path('about/index.html')
-          s=about.read_text(encoding='utf-8')
-          # Replace only the Person JSON-LD block; visible page text/title/H1 remain untouched.
-          blocks=list(re.finditer(r'<script type="application/ld\+json">(.*?)</script>',s,re.S))
-          target=None
+          about=Path('about/index.html'); s=about.read_text(encoding='utf-8')
+          blocks=list(re.finditer(r'<script type="application/ld\+json">(.*?)</script>',s,re.S)); target=None
           for m in blocks:
               try: obj=json.loads(m.group(1))
               except Exception: continue
-              if obj.get('@type')=='ProfilePage' and isinstance(obj.get('mainEntity'),dict) and obj['mainEntity'].get('@type')=='Person':
-                  target=(m,obj); break
+              if obj.get('@type')=='ProfilePage' and isinstance(obj.get('mainEntity'),dict) and obj['mainEntity'].get('@type')=='Person': target=(m,obj); break
           if not target: raise SystemExit('Person ProfilePage JSON-LD not found')
-          m,obj=target
-          person=obj['mainEntity']
-          person['alternateName']=variants
-          person['image']='https://jantex110.github.io/assets/heroes/mehdi-attar-jannesar-nobari-01.webp'
+          m,obj=target; person=obj['mainEntity']; person['alternateName']=variants; person['image']='https://jantex110.github.io/assets/heroes/mehdi-attar-jannesar-nobari-01.webp'
           repl='<script type="application/ld+json">'+json.dumps(obj,ensure_ascii=False,separators=(',',':'))+'</script>'
-          s=s[:m.start()]+repl+s[m.end():]
-          about.write_text(s,encoding='utf-8')
+          about.write_text(s[:m.start()]+repl+s[m.end():],encoding='utf-8')
           PY
-
-          # Hard validation before any commit.
-          test "$(grep -RIl 'hero-0[1-5]\.webp' articles about index.html 2>/dev/null | wc -l)" -eq 0
-          test "$(grep -RIl 'alt=""' articles/*/index.html 2>/dev/null | wc -l)" -eq 0
+          oldrefs=$(grep -RIl 'hero-0[1-5]\.webp' articles about index.html 2>/dev/null || true); test -z "$oldrefs"
+          emptyalts=$(grep -RIl 'alt=""' articles/*/index.html 2>/dev/null || true); test -z "$emptyalts"
           test "$(grep -RIl 'mehdi-attar-jannesar-nobari-' articles/*/index.html | wc -l)" -eq 50
           test "$(find assets/heroes -maxdepth 1 -type f -name 'mehdi-attar-jannesar-nobari-*.webp' | wc -l)" -eq 5
-          if grep -Rqi 'hossein\|حسین' articles about assets 2>/dev/null; then
-            echo 'Forbidden cross-person name detected; aborting.' >&2
-            exit 1
-          fi
-
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if grep -Rqi 'hossein\|حسین' articles about assets 2>/dev/null; then echo 'Forbidden cross-person name detected; aborting.' >&2; exit 1; fi
+          git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add articles about assets/heroes
           git commit -m 'Improve Mehdi image identity metadata'
           git push
-
       - name: Remove this one-time workflow
         if: success()
         shell: bash
