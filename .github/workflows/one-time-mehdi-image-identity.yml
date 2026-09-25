@@ -30,8 +30,7 @@ jobs:
           variants=['مهدی عطار جاننثار نوبری','مهدی عطار جان‌نثار نوبری','مهدی عطار جان نثار نوبری','مهدی عطار جانثار نوبری','مهدی عطار جان‌ثار نوبری','مهدی عطار جانسار نوبری','مهدی عطار جان‌سار نوبری','مهدی عطار جاننسار نوبری','مهدی عطار جان‌نسار نوبری','مهدی عطار جان نسار نوبری','مهدی جاننثار نوبری','مهدی جان‌نثار نوبری','مهدی جان نثار نوبری','مهدی جانثار نوبری','مهدی جانسار نوبری','Mehdi Attar Jannesar Nobari','Mehdi Attar Janesar Nobari','Mehdi Attar Jan-Nesar Nobari','Mehdi Jannesar Nobari','Mehdi Janesar Nobari','Mahdi Attar Jannesar Nobari','Mahdi Jannesar Nobari','Mehdi Jannesar','Mehdi Janesar','Mehdi Nobari']
           for i,p in enumerate(files):
               s=p.read_text(encoding='utf-8')
-              old=f'hero-{(i%5)+1:02d}.webp'; new=f'mehdi-attar-jannesar-nobari-{(i%5)+1:02d}.webp'
-              s=s.replace(old,new)
+              for n in range(1,6): s=s.replace(f'hero-{n:02d}.webp',f'mehdi-attar-jannesar-nobari-{n:02d}.webp')
               pat=r'(<section class="hero"[^>]*><img\s+src="[^"]+"\s+alt=")[^"]*("\s+fetchpriority="high")'
               s,n=re.subn(pat,lambda m:m.group(1)+variants[i%len(variants)]+m.group(2),s,count=1)
               if n!=1: raise SystemExit(f'Hero ALT not uniquely updated: {p}')
@@ -47,11 +46,11 @@ jobs:
           repl='<script type="application/ld+json">'+json.dumps(obj,ensure_ascii=False,separators=(',',':'))+'</script>'
           about.write_text(s[:m.start()]+repl+s[m.end():],encoding='utf-8')
           PY
-          oldrefs=$(grep -RIl 'hero-0[1-5]\.webp' articles about index.html 2>/dev/null || true); test -z "$oldrefs"
+          oldrefs=$(grep -RIlE 'hero-0[1-5]\.webp' articles about index.html 2>/dev/null || true); test -z "$oldrefs"
           emptyalts=$(grep -RIl 'alt=""' articles/*/index.html 2>/dev/null || true); test -z "$emptyalts"
           test "$(grep -RIl 'mehdi-attar-jannesar-nobari-' articles/*/index.html | wc -l)" -eq 50
           test "$(find assets/heroes -maxdepth 1 -type f -name 'mehdi-attar-jannesar-nobari-*.webp' | wc -l)" -eq 5
-          if grep -Rqi 'hossein\|حسین' articles about assets 2>/dev/null; then echo 'Forbidden cross-person name detected; aborting.' >&2; exit 1; fi
+          if grep -RqiE 'hossein|حسین' articles about assets 2>/dev/null; then echo 'Forbidden cross-person name detected; aborting.' >&2; exit 1; fi
           git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add articles about assets/heroes
           git commit -m 'Improve Mehdi image identity metadata'
