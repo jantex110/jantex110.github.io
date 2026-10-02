@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/10-armenia-trade-routes/
+Sitemap: https://jantex110.github.io/articles/10-armenia-trade-routes/sitemap.xml

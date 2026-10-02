@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/49-eurasia-corridors-future/
+Sitemap: https://jantex110.github.io/articles/49-eurasia-corridors-future/sitemap.xml

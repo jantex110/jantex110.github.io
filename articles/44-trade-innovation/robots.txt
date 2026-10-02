@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/44-trade-innovation/
+Sitemap: https://jantex110.github.io/articles/44-trade-innovation/sitemap.xml

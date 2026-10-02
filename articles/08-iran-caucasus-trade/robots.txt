@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/08-iran-caucasus-trade/
+Sitemap: https://jantex110.github.io/articles/08-iran-caucasus-trade/sitemap.xml

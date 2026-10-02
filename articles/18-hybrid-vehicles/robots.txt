@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/18-hybrid-vehicles/
+Sitemap: https://jantex110.github.io/articles/18-hybrid-vehicles/sitemap.xml

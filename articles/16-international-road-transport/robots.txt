@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/16-international-road-transport/
+Sitemap: https://jantex110.github.io/articles/16-international-road-transport/sitemap.xml

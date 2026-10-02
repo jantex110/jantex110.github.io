@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /articles/40-culture-international-relations/
+Sitemap: https://jantex110.github.io/articles/40-culture-international-relations/sitemap.xml
